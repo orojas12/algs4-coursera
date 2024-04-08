@@ -1,3 +1,5 @@
+package com.github.orojas12.lectures.week1;
+
 import edu.princeton.cs.algs4.StdOut;
 
 public class HelloGoodbye {
