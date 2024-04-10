@@ -2,35 +2,32 @@ package com.github.orojas12.assignments.week1;
 
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
-import edu.princeton.cs.algs4.Stopwatch;
+// import edu.princeton.cs.algs4.Stopwatch;
 
 public class PercolationStats {
     private double[] trialThresholds;
 
     public PercolationStats(int n, int trials) {
         trialThresholds = new double[trials];
-        Stopwatch watch = new Stopwatch();
-        System.out.println("Beginning percolation trials...");
+        // Stopwatch watch = new Stopwatch();
+        // System.out.println("Beginning percolation trials...");
         for (int i = 0; i < trials; i++) {
             Percolation p = new Percolation(n);
             int[] randomSites = StdRandom.permutation(n * n);
             int openedSites = 0;
             for (int j = 0; j < randomSites.length && !p.percolates(); j++) {
                 int[] coord = getCoord(randomSites[j] + 1, n);
-                System.out.println(String.format("Opening (%d, %d)", coord[0], coord[1]));
                 p.open(coord[0], coord[1]);
                 openedSites += 1;
             }
             double threshold = (double) openedSites / (n * n);
             trialThresholds[i] = threshold;
-            System.out.println("System percolated after opening " + openedSites + " sites");
-            System.out.println("Percolation threshold: " + threshold);
         }
-        double milliseconds = watch.elapsedTime() * 1000;
-        System.out.println("=========================");
-        System.out.println("Ran " + trials + " trials");
-        System.out.println("Average percolation threshold: " + mean());
-        System.out.println("Elapsed time: " + Math.round(milliseconds) + "ms");
+        // double milliseconds = watch.elapsedTime() * 1000;
+        // System.out.println("=========================");
+        // System.out.println("Ran " + trials + " trials");
+        // System.out.println("Average percolation threshold: " + mean());
+        // System.out.println("Elapsed time: " + Math.round(milliseconds) + "ms");
     }
     
     private static int[] getCoord(int site, int n) {
@@ -64,6 +61,12 @@ public class PercolationStats {
     }
 
     public static void main(String[] args) {
-        PercolationStats stats = new PercolationStats(50, 100);
+        int n = Integer.parseInt(args[0]);
+        int trials = Integer.parseInt(args[1]);
+        if (n <= 0 || trials <= 0) throw new IllegalArgumentException();
+        PercolationStats stats = new PercolationStats(n, trials);
+        System.out.println("mean = " + stats.mean());
+        System.out.println("stddev = " + stats.stddev());
+        System.out.println("95% confidence interval = [" + stats.confidenceLo() + ", " + stats.confidenceHi() + "]");
     }
 }

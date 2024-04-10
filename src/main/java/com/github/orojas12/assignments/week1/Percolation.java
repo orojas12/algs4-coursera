@@ -10,17 +10,28 @@ public class Percolation {
     private int openSites;
     private int n;
     private int size;
+    private int topVirtualSite;
+    private int bottomVirtualSite;
 
     public Percolation(int n) {
         if (n <= 0) throw new IllegalArgumentException();
         size = n*n;
+        topVirtualSite = size;
+        bottomVirtualSite = size + 1;
         this.n = n;
-        uf = new WeightedQuickUnionUF(size);
+        // add two extra sites to be used as virtual sites
+        // connected to the top and bottom row
+        uf = new WeightedQuickUnionUF(size + 2);
         openSites = 0;
         siteIsOpen = new boolean[size];
         for (int i = 0; i < size; i++) {
             siteIsOpen[i] = false;
+            // connect top row sites to top virtual site
+            if (i < n) uf.union(i, topVirtualSite);
+            // connect bottom row sites to bottom virtual site
+            if (i > size - n) uf.union(i, bottomVirtualSite);
         }
+
     }
 
     private boolean siteIsInvalid(int row, int col) {
@@ -85,10 +96,10 @@ public class Percolation {
         return siteIsOpen[getSiteIndex(row, col)];
     }
 
-    // is connected to an open site in the top row
+    // is an open site that's connected to the top virtual site
     public boolean isFull(int row, int col) {
         if (siteIsInvalid(row, col)) throw new IllegalArgumentException();
-        return uf.find(getSiteIndex(row, col)) < n;
+        return isOpen(row, col) && uf.find(getSiteIndex(row, col)) == uf.find(topVirtualSite);
     }
 
     public int numberOfOpenSites() {
@@ -98,22 +109,12 @@ public class Percolation {
     // is there a full site in the bottom row?
     public boolean percolates() {
         // iterate over bottom row
-        for (int i = (size - 1) - (n - 1); i < size; i++) {
-            if (siteIsOpen[i]) {
-                // iterate over top row
-                for (int j = 0; j < n; j++) {
-                    if (siteIsOpen[j] && uf.find(i) == uf.find(j)) {
-                        return true;
-                    }
-                }
-            }
-        };
-        return false;
+        return uf.find(bottomVirtualSite) == uf.find(topVirtualSite);
     }
 
     public static void main (String[] args) {
         Stopwatch watch = new Stopwatch();
-        int n = 20;
+        int n = 3;
         Percolation p = new Percolation(n);
         int[] randomSites = StdRandom.permutation(n * n);
         int openedSites = 0;
